@@ -6,15 +6,19 @@ import { env } from '../../config/env.js';
 const normalizeKey = (key) => key.replace(/^\/+/, '');
 const removeTrailingSlash = (value) => value.replace(/\/+$/, '');
 
-export const minioClient = new S3Client({
-  region: env.storage.region,
-  endpoint: env.storage.endpoint,
-  forcePathStyle: true,
-  credentials: {
-    accessKeyId: env.storage.accessKey,
-    secretAccessKey: env.storage.secretKey,
-  },
-});
+const createClient = (endpoint) =>
+  new S3Client({
+    region: env.storage.region,
+    endpoint,
+    forcePathStyle: true,
+    credentials: {
+      accessKeyId: env.storage.accessKey,
+      secretAccessKey: env.storage.secretKey,
+    },
+  });
+
+export const minioClient = createClient(env.storage.endpoint);
+const minioPublicClient = createClient(env.storage.publicUrl);
 
 /**
  * Generates a presigned URL for uploading content to MinIO.
@@ -31,7 +35,7 @@ export const createPresignedUploadUrl = async ({ key, contentType, expiresIn = 3
     Key: normalizedKey,
     ContentType: contentType,
   });
-  const uploadUrl = await getSignedUrl(minioClient, command, { expiresIn });
+  const uploadUrl = await getSignedUrl(minioPublicClient, command, { expiresIn });
   return {
     uploadUrl,
     objectKey: normalizedKey,
