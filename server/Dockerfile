@@ -1,4 +1,10 @@
 FROM node:18-alpine
+
+# Prisma requires OpenSSL to be available when generating the client.
+# The alpine variant does not ship the compatibility package by default,
+# so we install it explicitly to avoid runtime errors when the schema
+# engine boots up.
+RUN apk add --no-cache openssl1.1-compat
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install
