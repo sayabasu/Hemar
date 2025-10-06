@@ -20,6 +20,22 @@ const createClient = (endpoint) =>
 export const minioClient = createClient(env.storage.endpoint);
 const minioPublicClient = createClient(env.storage.publicUrl);
 
+const applyUploadUrlOverride = (url) => {
+  if (!env.storage.uploadUrlOverride) {
+    return url;
+  }
+
+  try {
+    const overrideUrl = new URL(env.storage.uploadUrlOverride);
+    const signedUrl = new URL(url);
+    signedUrl.protocol = overrideUrl.protocol;
+    signedUrl.host = overrideUrl.host;
+    return signedUrl.toString();
+  } catch (error) {
+    return url;
+  }
+};
+
 /**
  * Generates a presigned URL for uploading content to MinIO.
  * @param {{
@@ -37,7 +53,7 @@ export const createPresignedUploadUrl = async ({ key, contentType, expiresIn = 3
   });
   const uploadUrl = await getSignedUrl(minioPublicClient, command, { expiresIn });
   return {
-    uploadUrl,
+    uploadUrl: applyUploadUrlOverride(uploadUrl),
     objectKey: normalizedKey,
     fileUrl: buildPublicUrl(normalizedKey),
     expiresIn,
