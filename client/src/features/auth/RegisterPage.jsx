@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Alert, Box, Button, Paper, Stack, TextField, Typography } from '@mui/material';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Alert, Box, Button, Link, Paper, Stack, TextField, Typography } from '@mui/material';
+import PersonAddAlt1RoundedIcon from '@mui/icons-material/PersonAddAlt1Rounded';
+import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import { useAuth } from './AuthContext.jsx';
 
 const RegisterPage = () => {
@@ -25,13 +27,45 @@ const RegisterPage = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-      <Paper component="form" onSubmit={handleSubmit} sx={{ p: 4, width: 400 }}>
-        <Stack spacing={2}>
-          <Typography variant="h5">Create account</Typography>
+    <Box
+      sx={{
+        minHeight: '80vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Paper
+        component="form"
+        onSubmit={handleSubmit}
+        elevation={0}
+        sx={{
+          width: { xs: '100%', sm: 460 },
+          p: { xs: 4, md: 5 },
+          borderRadius: 4,
+          background: 'linear-gradient(170deg, rgba(255,255,255,0.96), rgba(229,231,235,0.92))',
+          boxShadow: '0 24px 60px rgba(15, 23, 42, 0.12)',
+        }}
+      >
+        <Stack spacing={3}>
+          <Stack spacing={1}>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<EmojiEventsOutlinedIcon />}
+              sx={{ alignSelf: 'flex-start' }}
+              disabled
+            >
+              Member perks
+            </Button>
+            <Typography variant="h4">Create your Hemar ID</Typography>
+            <Typography variant="body1" color="text.secondary">
+              Personalize your shopping experience and keep tabs on your premium devices.
+            </Typography>
+          </Stack>
           {error && <Alert severity="error">{error}</Alert>}
-          <TextField name="name" label="Name" value={form.name} onChange={handleChange} fullWidth />
-          <TextField name="email" label="Email" value={form.email} onChange={handleChange} fullWidth />
+          <TextField name="name" label="Full name" value={form.name} onChange={handleChange} fullWidth />
+          <TextField name="email" label="Email address" value={form.email} onChange={handleChange} fullWidth />
           <TextField
             name="password"
             label="Password"
@@ -40,11 +74,14 @@ const RegisterPage = () => {
             onChange={handleChange}
             fullWidth
           />
-          <Button variant="contained" type="submit">
-            Register
+          <Button variant="contained" type="submit" size="large" endIcon={<PersonAddAlt1RoundedIcon />}>
+            Create account
           </Button>
-          <Typography variant="body2">
-            Already have an account? <Link to="/login">Login</Link>
+          <Typography variant="body2" color="text.secondary">
+            Already have an account?{' '}
+            <Link component={RouterLink} to="/login" underline="hover">
+              Sign in
+            </Link>
           </Typography>
         </Stack>
       </Paper>
