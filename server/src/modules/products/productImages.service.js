@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { extname } from 'node:path';
-import { createPresignedUploadUrl } from '../../integrations/storage/minio.js';
+import { uploadObject } from '../../integrations/storage/minio.js';
 
 const ALLOWED_CONTENT_TYPES = new Set([
   'image/jpeg',
@@ -27,10 +27,10 @@ const sanitizeExtension = (fileName) => {
 };
 
 /**
- * Generates a presigned upload URL for product images.
- * @param {{ fileName: string; contentType: string; }} params
+ * Uploads a product image directly to MinIO and returns its public URL.
+ * @param {{ fileName: string; contentType: string; buffer: Buffer; }} params
  */
-export const createProductImageUpload = async ({ fileName, contentType }) => {
+export const uploadProductImage = async ({ fileName, contentType, buffer }) => {
   if (!fileName) {
     const error = new Error('A file name is required');
     error.status = 400;
@@ -43,9 +43,16 @@ export const createProductImageUpload = async ({ fileName, contentType }) => {
     throw error;
   }
 
+  if (!buffer?.length) {
+    const error = new Error('An image file buffer is required for upload.');
+    error.status = 400;
+    throw error;
+  }
+
   const extensionFromName = sanitizeExtension(fileName);
   const extension = extensionFromName || CONTENT_TYPE_EXTENSIONS[contentType] || '';
   const key = `products/${randomUUID()}${extension}`;
 
-  return createPresignedUploadUrl({ key, contentType, expiresIn: 300 });
+  const { fileUrl } = await uploadObject({ key, body: buffer, contentType });
+  return { fileUrl };
 };

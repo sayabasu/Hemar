@@ -1,39 +1,12 @@
 import { prisma } from '../../libs/prisma.js';
 import { env } from '../../config/env.js';
+import { createImageUrlNormalizer } from '../../integrations/storage/utils/urlUtils.js';
 
-const removeTrailingSlash = (value) => value.replace(/\/+$/, '');
-
-const toAbsolutePath = (value) => {
-  const trimmed = String(value).trim();
-  if (!trimmed) {
-    return '';
-  }
-  if (trimmed.startsWith('/')) {
-    return trimmed;
-  }
-  const firstSlashIndex = trimmed.indexOf('/');
-  if (firstSlashIndex > -1) {
-    const potentialHost = trimmed.slice(0, firstSlashIndex);
-    if (potentialHost.includes(':')) {
-      const path = trimmed.slice(firstSlashIndex);
-      return path.startsWith('/') ? path : `/${path}`;
-    }
-  }
-  return `/${trimmed}`;
-};
-
-const ensurePublicImageUrl = (value) => {
-  if (!value) {
-    return value;
-  }
-  try {
-    return new URL(value).href;
-  } catch (error) {
-    const base = removeTrailingSlash(env.storage.publicUrl);
-    const path = toAbsolutePath(value);
-    return path ? `${base}${path}` : base;
-  }
-};
+const ensurePublicImageUrl = createImageUrlNormalizer({
+  publicUrl: env.storage.publicUrl,
+  endpoint: env.storage.endpoint,
+  bucket: env.storage.bucket,
+});
 
 const mapProduct = (product) => (product ? { ...product, imageUrl: ensurePublicImageUrl(product.imageUrl) } : product);
 
