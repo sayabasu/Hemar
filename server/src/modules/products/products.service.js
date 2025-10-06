@@ -1,14 +1,7 @@
 import { prisma } from '../../libs/prisma.js';
-import { env } from '../../config/env.js';
-import { createImageUrlNormalizer } from '../../integrations/storage/utils/urlUtils.js';
+import { normalizeImageUrl } from '../../integrations/storage/filesystem.js';
 
-const ensurePublicImageUrl = createImageUrlNormalizer({
-  publicUrl: env.storage.publicUrl,
-  endpoint: env.storage.endpoint,
-  bucket: env.storage.bucket,
-});
-
-const mapProduct = (product) => (product ? { ...product, imageUrl: ensurePublicImageUrl(product.imageUrl) } : product);
+const mapProduct = (product) => (product ? { ...product, imageUrl: normalizeImageUrl(product.imageUrl) } : product);
 
 /**
  * Lists products with optional search.

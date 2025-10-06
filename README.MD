@@ -14,8 +14,7 @@ docker compose up --build
 This command starts the following services:
 - **postgres** – relational database for users, products, and orders.
 - **mongo** – MongoDB instance used for activity logs.
-- **minio** – object storage used for managing product media uploads.
-- **server** – Express API exposed on `http://localhost:4000` with Swagger docs at `/docs`.
+- **server** – Express API exposed on `http://localhost:4000` with Swagger docs at `/docs` and a shared `/images` mount for uploaded media.
 - **client** – React storefront served on `http://localhost:3000`.
 
 The server service automatically applies Prisma migrations and seeds default data (admin user plus sample products).
@@ -55,7 +54,7 @@ Each package exposes helpful scripts:
 - Customer registration and login with JWT-based authentication.
 - Admin-protected CRUD APIs for managing phone catalog entries.
 - React-based admin console for adding products and reviewing inventory.
-- MinIO-backed product image uploads using presigned URLs for secure media storage.
+- Persistent on-disk product image storage shared with the frontend via the `/images` public path.
 - Shopping cart and checkout flow that creates orders and updates stock.
 - Order history for authenticated customers.
 - Mongo-backed activity log capturing catalog and order events.

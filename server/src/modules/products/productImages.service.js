@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { extname } from 'node:path';
-import { uploadObject } from '../../integrations/storage/minio.js';
+import { saveObject } from '../../integrations/storage/filesystem.js';
 
 const ALLOWED_CONTENT_TYPES = new Set([
   'image/jpeg',
@@ -27,7 +27,7 @@ const sanitizeExtension = (fileName) => {
 };
 
 /**
- * Uploads a product image directly to MinIO and returns its public URL.
+ * Persists a product image to the shared filesystem storage and returns its public URL.
  * @param {{ fileName: string; contentType: string; buffer: Buffer; }} params
  */
 export const uploadProductImage = async ({ fileName, contentType, buffer }) => {
@@ -53,6 +53,6 @@ export const uploadProductImage = async ({ fileName, contentType, buffer }) => {
   const extension = extensionFromName || CONTENT_TYPE_EXTENSIONS[contentType] || '';
   const key = `products/${randomUUID()}${extension}`;
 
-  const { fileUrl } = await uploadObject({ key, body: buffer, contentType });
+  const { fileUrl } = await saveObject({ key, body: buffer, contentType });
   return { fileUrl };
 };
