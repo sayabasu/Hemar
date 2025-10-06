@@ -6,6 +6,7 @@
 - `/register` – Customer registration page.
 - `/cart` – Shopping cart & checkout form.
 - `/orders` – Authenticated order history.
+- `/admin/products` – Admin console for managing the catalog (admin only).
 
 ## Backend API
 - `/api/auth/*` – Authentication endpoints.

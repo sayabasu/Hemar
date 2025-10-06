@@ -22,4 +22,10 @@ export const routes = [
     Component: lazy(() => import('./features/orders/OrdersPage.jsx')),
     requiresAuth: true,
   },
+  {
+    path: '/admin/products',
+    Component: lazy(() => import('./features/products/AdminProductsPage.jsx')),
+    requiresAuth: true,
+    requiresRole: 'ADMIN',
+  },
 ];

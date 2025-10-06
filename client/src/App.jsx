@@ -5,11 +5,14 @@ import { routes } from './routes.js';
 import { MainLayout } from './layouts/MainLayout.jsx';
 import { useAuth } from './features/auth/AuthContext.jsx';
 
-const RouteGuard = ({ requiresAuth, element }) => {
+const RouteGuard = ({ requiresAuth, requiresRole, element }) => {
   const { user } = useAuth();
   const location = useLocation();
   if (requiresAuth && !user) {
     return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+  if (requiresRole && (!user || user.role !== requiresRole)) {
+    return <Navigate to="/" replace />;
   }
   return element;
 };
@@ -24,11 +27,17 @@ const App = () => (
       )}
     >
       <Routes>
-        {routes.map(({ path, Component, requiresAuth }) => (
+        {routes.map(({ path, Component, requiresAuth, requiresRole }) => (
           <Route
             key={path}
             path={path}
-            element={<RouteGuard requiresAuth={requiresAuth} element={<Component />} />}
+            element={
+              <RouteGuard
+                requiresAuth={requiresAuth}
+                requiresRole={requiresRole}
+                element={<Component />}
+              />
+            }
           />
         ))}
       </Routes>

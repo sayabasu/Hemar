@@ -27,6 +27,15 @@ cp client/.env.example client/.env
 ```
 Update the environment variables as required before starting the stack.
 
+### Admin Access
+The seed process provisions an administrator account using the credentials defined in `server/.env` (defaults shown below):
+
+- **Admin email:** `admin@hemar.test`
+- **Admin password:** `SuperSecure123!`
+
+Log in with these credentials at `http://localhost:3000/login` to reach the admin console located at `http://localhost:3000/admin/products`.
+From there you can add new products and review the catalog inventory. Remember to change the default password in production.
+
 ### NPM Scripts
 Each package exposes helpful scripts:
 
@@ -44,6 +53,7 @@ Each package exposes helpful scripts:
 ## Features
 - Customer registration and login with JWT-based authentication.
 - Admin-protected CRUD APIs for managing phone catalog entries.
+- React-based admin console for adding products and reviewing inventory.
 - Shopping cart and checkout flow that creates orders and updates stock.
 - Order history for authenticated customers.
 - Mongo-backed activity log capturing catalog and order events.

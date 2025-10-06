@@ -7,3 +7,4 @@
 | Register | Create a new customer account | `client/src/features/auth/RegisterPage.jsx` |
 | Cart | Manage cart items and submit checkout form | `client/src/features/cart/CartPage.jsx` |
 | Orders | View authenticated order history | `client/src/features/orders/OrdersPage.jsx` |
+| Admin Console | Add new products and review inventory (admin only) | `client/src/features/products/AdminProductsPage.jsx` |
