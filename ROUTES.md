@@ -11,6 +11,7 @@
 ## Backend API
 - `/api/auth/*` – Authentication endpoints.
 - `/api/products/*` – Catalog management endpoints.
+- `/api/products/images/upload` – Issue presigned URLs for product image uploads (admin only).
 - `/api/orders/*` – Checkout and order management endpoints.
 - `/api/admin/activities` – Administrative activity logs.
 - `/docs` – Swagger UI.

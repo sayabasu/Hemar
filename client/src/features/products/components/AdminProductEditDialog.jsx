@@ -1,13 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Grid,
-} from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid } from '@mui/material';
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import { ProductFormFields } from './ProductFormFields.jsx';
 import { buildProductPayload, createEmptyProductForm, mapProductToFormValues } from './formUtils.js';
@@ -24,6 +16,7 @@ import { buildProductPayload, createEmptyProductForm, mapProductToFormValues } f
  */
 export const AdminProductEditDialog = ({ open, product, onClose, onSubmit, isSubmitting }) => {
   const [form, setForm] = useState(createEmptyProductForm());
+  const [fileInputKey, setFileInputKey] = useState(() => Date.now());
 
   useEffect(() => {
     if (open && product) {
@@ -31,10 +24,16 @@ export const AdminProductEditDialog = ({ open, product, onClose, onSubmit, isSub
     } else {
       setForm(createEmptyProductForm());
     }
+    setFileInputKey(Date.now());
   }, [open, product]);
 
   const handleChange = (field) => (event) => {
     setForm((prev) => ({ ...prev, [field]: event.target.value }));
+  };
+
+  const handleFileSelect = (file) => {
+    setForm((prev) => ({ ...prev, imageFile: file }));
+    setFileInputKey(Date.now());
   };
 
   const handleSubmit = async (event) => {
@@ -55,7 +54,12 @@ export const AdminProductEditDialog = ({ open, product, onClose, onSubmit, isSub
       <DialogContent>
         <Box component="form" id="admin-product-edit-form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
           <Grid container spacing={2.5}>
-            <ProductFormFields form={form} onChange={handleChange} />
+            <ProductFormFields
+              form={form}
+              onChange={handleChange}
+              onFileSelect={handleFileSelect}
+              fileInputKey={fileInputKey}
+            />
           </Grid>
         </Box>
       </DialogContent>

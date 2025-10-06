@@ -7,22 +7,21 @@ import { buildProductPayload, createEmptyProductForm } from './formUtils.js';
 /**
  * Renders the product creation form for administrators.
  * @param {{
- *   onSubmit: (payload: {
- *     name: string;
- *     description: string;
- *     price: number;
- *     imageUrl: string;
- *     brand: string;
- *     stock: number;
- *   }) => Promise<boolean>;
+ *   onSubmit: (payload: ReturnType<typeof buildProductPayload>) => Promise<boolean>;
  *   isSubmitting: boolean;
  * }} props
  */
 export const AdminProductForm = ({ onSubmit, isSubmitting }) => {
   const [form, setForm] = useState(createEmptyProductForm());
+  const [fileInputKey, setFileInputKey] = useState(() => Date.now());
 
   const handleChange = (field) => (event) => {
     setForm((prev) => ({ ...prev, [field]: event.target.value }));
+  };
+
+  const handleFileSelect = (file) => {
+    setForm((prev) => ({ ...prev, imageFile: file }));
+    setFileInputKey(Date.now());
   };
 
   const handleSubmit = async (event) => {
@@ -34,6 +33,7 @@ export const AdminProductForm = ({ onSubmit, isSubmitting }) => {
     const created = await onSubmit(payload);
     if (created) {
       setForm(createEmptyProductForm());
+      setFileInputKey(Date.now());
     }
   };
 
@@ -46,7 +46,12 @@ export const AdminProductForm = ({ onSubmit, isSubmitting }) => {
       <CardContent>
         <Box component="form" onSubmit={handleSubmit}>
           <Grid container spacing={2.5}>
-            <ProductFormFields form={form} onChange={handleChange} />
+            <ProductFormFields
+              form={form}
+              onChange={handleChange}
+              onFileSelect={handleFileSelect}
+              fileInputKey={fileInputKey}
+            />
             <Grid item xs={12}>
               <Button
                 type="submit"

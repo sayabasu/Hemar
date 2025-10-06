@@ -6,6 +6,7 @@ import {
   deleteProduct,
 } from './products.service.js';
 import { recordActivity } from '../activities/activities.service.js';
+import { createProductImageUpload } from './productImages.service.js';
 
 /**
  * @param {import('express').Request} req
@@ -42,6 +43,18 @@ export const store = async (req, res, next) => {
       metadata: { productId: product.id },
     });
     res.status(201).json({ product });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const requestImageUpload = async (req, res, next) => {
+  try {
+    const { uploadUrl, fileUrl, expiresIn } = await createProductImageUpload({
+      fileName: req.body?.fileName,
+      contentType: req.body?.contentType,
+    });
+    res.status(201).json({ uploadUrl, fileUrl, expiresIn });
   } catch (error) {
     next(error);
   }
