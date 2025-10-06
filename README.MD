@@ -14,6 +14,7 @@ docker compose up --build
 This command starts the following services:
 - **postgres** – relational database for users, products, and orders.
 - **mongo** – MongoDB instance used for activity logs.
+- **minio** – object storage used for managing product media uploads.
 - **server** – Express API exposed on `http://localhost:4000` with Swagger docs at `/docs`.
 - **client** – React storefront served on `http://localhost:3000`.
 
