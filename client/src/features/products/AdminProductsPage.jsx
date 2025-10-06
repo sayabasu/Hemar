@@ -20,7 +20,9 @@ import {
 import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
 import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded';
 import { api } from '../../lib/api.js';
+import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import { AdminProductForm } from './components/AdminProductForm.jsx';
+import { AdminProductEditDialog } from './components/AdminProductEditDialog.jsx';
 
 const formatCurrency = (value) => {
   const amount = Number.isFinite(value) ? value : 0;
@@ -38,6 +40,7 @@ const AdminProductsPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(null);
+  const [editingProduct, setEditingProduct] = useState(null);
 
   const loadProducts = useCallback(async () => {
     setIsLoading(true);
@@ -77,7 +80,41 @@ const AdminProductsPage = () => {
     [loadProducts]
   );
 
+  const handleUpdate = useCallback(
+    async (id, payload) => {
+      setIsSubmitting(true);
+      setSubmitError(null);
+      setSubmitSuccess(null);
+      try {
+        await api.put(`/products/${id}`, payload);
+        setSubmitSuccess('Product updated successfully.');
+        await loadProducts();
+        return true;
+      } catch (error) {
+        const message = error?.response?.data?.message || 'Unable to update product. Check the fields and try again.';
+        setSubmitError(message);
+        return false;
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [loadProducts]
+  );
+
   const productCount = useMemo(() => products.length, [products]);
+
+  const handleEditClick = useCallback(
+    (product) => {
+      setSubmitError(null);
+      setSubmitSuccess(null);
+      setEditingProduct(product);
+    },
+    []
+  );
+
+  const handleEditClose = useCallback(() => {
+    setEditingProduct(null);
+  }, []);
 
   return (
     <Stack spacing={4}>
@@ -135,6 +172,7 @@ const AdminProductsPage = () => {
                   <TableCell>Price</TableCell>
                   <TableCell align="right">Stock</TableCell>
                   <TableCell>Updated</TableCell>
+                  <TableCell align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -162,6 +200,19 @@ const AdminProductsPage = () => {
                         year: 'numeric',
                       })}
                     </TableCell>
+                    <TableCell align="right">
+                      <Tooltip title="Edit product">
+                        <span>
+                          <IconButton
+                            onClick={() => handleEditClick(product)}
+                            size="small"
+                            aria-label="Edit product"
+                          >
+                            <EditRoundedIcon fontSize="small" />
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+                    </TableCell>
                   </TableRow>
                 ))}
                 {!products.length && !isLoading && (
@@ -185,6 +236,13 @@ const AdminProductsPage = () => {
           All operations are logged in the activity feed for audit purposes.
         </Typography>
       </Stack>
+      <AdminProductEditDialog
+        open={Boolean(editingProduct)}
+        product={editingProduct}
+        onClose={handleEditClose}
+        isSubmitting={isSubmitting}
+        onSubmit={(payload) => (editingProduct ? handleUpdate(editingProduct.id, payload) : Promise.resolve(false))}
+      />
     </Stack>
   );
 };
