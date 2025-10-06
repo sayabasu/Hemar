@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { authenticate, authorize } from '../../middlewares/auth.js';
-import { index, show, store, update, destroy, requestImageUpload } from './products.controller.js';
+import { index, show, store, update, destroy, uploadImage } from './products.controller.js';
+import { upload } from '../../middlewares/upload.js';
 
 const router = Router();
 
@@ -27,29 +28,30 @@ router.get('/:id', show);
  * /api/products/images/upload:
  *   post:
  *     tags: [Products]
- *     summary: Generate a presigned URL for uploading a product image
+ *     summary: Upload a product image directly to storage
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
- *             required:
- *               - fileName
- *               - contentType
  *             properties:
- *               fileName:
+ *               file:
  *                 type: string
- *               contentType:
- *                 type: string
- *                 example: image/jpeg
+ *                 format: binary
  *     responses:
  *       201:
- *         description: Presigned upload URL generated
+ *         description: Image uploaded successfully
  *       400:
  *         description: Validation error
  */
-router.post('/images/upload', authenticate, authorize('ADMIN'), requestImageUpload);
+router.post(
+  '/images/upload',
+  authenticate,
+  authorize('ADMIN'),
+  upload.single('file'),
+  uploadImage,
+);
 
 router.post('/', authenticate, authorize('ADMIN'), store);
 router.put('/:id', authenticate, authorize('ADMIN'), update);

@@ -6,7 +6,7 @@ import {
   deleteProduct,
 } from './products.service.js';
 import { recordActivity } from '../activities/activities.service.js';
-import { createProductImageUpload } from './productImages.service.js';
+import { uploadProductImage } from './productImages.service.js';
 
 /**
  * @param {import('express').Request} req
@@ -48,13 +48,20 @@ export const store = async (req, res, next) => {
   }
 };
 
-export const requestImageUpload = async (req, res, next) => {
+export const uploadImage = async (req, res, next) => {
   try {
-    const { uploadUrl, fileUrl, expiresIn } = await createProductImageUpload({
-      fileName: req.body?.fileName,
-      contentType: req.body?.contentType,
+    if (!req.file) {
+      const error = new Error('An image file is required for upload.');
+      error.status = 400;
+      throw error;
+    }
+
+    const { fileUrl } = await uploadProductImage({
+      fileName: req.file.originalname,
+      contentType: req.file.mimetype,
+      buffer: req.file.buffer,
     });
-    res.status(201).json({ uploadUrl, fileUrl, expiresIn });
+    res.status(201).json({ fileUrl });
   } catch (error) {
     next(error);
   }

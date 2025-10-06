@@ -21,7 +21,6 @@ export const env = {
     secretKey: process.env.MINIO_SECRET_KEY,
     bucket: process.env.MINIO_BUCKET,
     publicUrl: process.env.MINIO_PUBLIC_URL || process.env.MINIO_ENDPOINT,
-    uploadUrlOverride: process.env.MINIO_UPLOAD_URL_OVERRIDE,
   },
 };
 

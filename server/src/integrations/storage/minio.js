@@ -1,10 +1,17 @@
-// eslint-disable-next-line import/named
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+/* eslint-disable import/named */
+import {
+  S3Client,
+  PutObjectCommand,
+  PutBucketPolicyCommand,
+  HeadBucketCommand,
+  CreateBucketCommand,
+} from '@aws-sdk/client-s3';
+/* eslint-enable import/named */
 import { env } from '../../config/env.js';
+import { logger } from '../../libs/logger.js';
+import { createPublicUrlBuilder } from './utils/urlUtils.js';
 
 const normalizeKey = (key) => key.replace(/^\/+/, '');
-const removeTrailingSlash = (value) => value.replace(/\/+$/, '');
 
 const createClient = (endpoint) =>
   new S3Client({
@@ -18,46 +25,38 @@ const createClient = (endpoint) =>
   });
 
 export const minioClient = createClient(env.storage.endpoint);
-const minioPublicClient = createClient(env.storage.publicUrl);
 
-const applyUploadUrlOverride = (url) => {
-  if (!env.storage.uploadUrlOverride) {
-    return url;
-  }
+const publicUrlBuilder = createPublicUrlBuilder({
+  publicUrl: env.storage.publicUrl,
+  bucket: env.storage.bucket,
+});
 
-  try {
-    const overrideUrl = new URL(env.storage.uploadUrlOverride);
-    const signedUrl = new URL(url);
-    signedUrl.protocol = overrideUrl.protocol;
-    signedUrl.host = overrideUrl.host;
-    return signedUrl.toString();
-  } catch (error) {
-    return url;
-  }
+const isMissingBucketError = (error) => {
+  const statusCode = error?.$metadata?.httpStatusCode;
+  const errorCode = error?.Code || error?.name;
+  return statusCode === 404 || errorCode === 'NoSuchBucket' || errorCode === 'NotFound';
 };
 
-/**
- * Generates a presigned URL for uploading content to MinIO.
- * @param {{
- *   key: string;
- *   contentType: string;
- *   expiresIn?: number;
- * }} params
- */
-export const createPresignedUploadUrl = async ({ key, contentType, expiresIn = 300 }) => {
-  const normalizedKey = normalizeKey(key);
-  const command = new PutObjectCommand({
-    Bucket: env.storage.bucket,
-    Key: normalizedKey,
-    ContentType: contentType,
-  });
-  const uploadUrl = await getSignedUrl(minioPublicClient, command, { expiresIn });
-  return {
-    uploadUrl: applyUploadUrlOverride(uploadUrl),
-    objectKey: normalizedKey,
-    fileUrl: buildPublicUrl(normalizedKey),
-    expiresIn,
-  };
+const ensureBucketExists = async () => {
+  try {
+    await minioClient.send(
+      new HeadBucketCommand({
+        Bucket: env.storage.bucket,
+      }),
+    );
+  } catch (error) {
+    if (!isMissingBucketError(error)) {
+      throw error;
+    }
+
+    const params = { Bucket: env.storage.bucket };
+    if (env.storage.region && env.storage.region !== 'us-east-1') {
+      params.CreateBucketConfiguration = { LocationConstraint: env.storage.region };
+    }
+
+    await minioClient.send(new CreateBucketCommand(params));
+    logger.info({ message: `Created MinIO bucket ${env.storage.bucket}` });
+  }
 };
 
 /**
@@ -66,6 +65,64 @@ export const createPresignedUploadUrl = async ({ key, contentType, expiresIn = 3
  */
 export const buildPublicUrl = (key) => {
   const normalizedKey = normalizeKey(key);
-  const base = removeTrailingSlash(env.storage.publicUrl);
-  return `${base}/${env.storage.bucket}/${normalizedKey}`;
+  return publicUrlBuilder(normalizedKey);
+};
+
+const buildPublicReadPolicy = (bucket) =>
+  JSON.stringify({
+    Version: '2012-10-17',
+    Statement: [
+      {
+        Effect: 'Allow',
+        Principal: '*',
+        Action: ['s3:GetObject'],
+        Resource: [`arn:aws:s3:::${bucket}/*`],
+      },
+    ],
+  });
+
+/**
+ * Ensures the target bucket is publicly readable so assets can be accessed from the frontend.
+ */
+export const ensurePublicBucketAccess = async () => {
+  try {
+    await ensureBucketExists();
+    const policy = buildPublicReadPolicy(env.storage.bucket);
+    await minioClient.send(
+      new PutBucketPolicyCommand({
+        Bucket: env.storage.bucket,
+        Policy: policy,
+      }),
+    );
+    logger.info({ message: 'MinIO bucket policy updated for public read access' });
+  } catch (error) {
+    logger.error({
+      message: 'Failed to configure MinIO bucket policy',
+      error: error.message,
+    });
+    throw error;
+  }
+};
+
+/**
+ * Uploads a file buffer directly to MinIO and returns its public URL.
+ * @param {{
+ *   key: string;
+ *   body: import('stream').Readable | Buffer | Uint8Array | string;
+ *   contentType: string;
+ * }} params
+ */
+export const uploadObject = async ({ key, body, contentType }) => {
+  const normalizedKey = normalizeKey(key);
+  const command = new PutObjectCommand({
+    Bucket: env.storage.bucket,
+    Key: normalizedKey,
+    Body: body,
+    ContentType: contentType,
+  });
+  await minioClient.send(command);
+  return {
+    objectKey: normalizedKey,
+    fileUrl: buildPublicUrl(normalizedKey),
+  };
 };
