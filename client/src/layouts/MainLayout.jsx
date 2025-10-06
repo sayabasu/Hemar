@@ -48,12 +48,14 @@ const HeaderToolbar = styled(Toolbar)(() => ({
 }));
 
 const Brand = styled(Typography)(() => ({
-  fontWeight: 700,
-  fontSize: '1.35rem',
-  letterSpacing: '-0.05em',
-  backgroundImage: 'linear-gradient(90deg, #f97316 0%, #38bdf8 100%)',
+  fontWeight: 800,
+  fontSize: 'clamp(1.75rem, 2vw + 1rem, 2.4rem)',
+  letterSpacing: '-0.08em',
+  backgroundImage: 'linear-gradient(120deg, #fb923c 0%, #facc15 25%, #38bdf8 65%, #6366f1 100%)',
   WebkitBackgroundClip: 'text',
   WebkitTextFillColor: 'transparent',
+  filter: 'drop-shadow(0 6px 18px rgba(15, 23, 42, 0.35))',
+  lineHeight: 1,
   cursor: 'pointer',
 }));
 
