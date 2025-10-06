@@ -58,3 +58,7 @@
 | metadata | Object | Optional structured context |
 | createdAt | Date | Timestamp |
 | updatedAt | Date | Timestamp |
+
+## Seed Data Notes
+- The database seed ensures an `ADMIN` role user is created using the `ADMIN_EMAIL`/`ADMIN_PASSWORD` environment variables
+  (defaults: `admin@hemar.test` / `SuperSecure123!`).

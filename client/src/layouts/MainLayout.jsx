@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -192,12 +192,28 @@ export const MainLayout = ({ children }) => {
   const isDesktop = useMediaQuery((muiTheme) => muiTheme.breakpoints.up('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const navLinks = useMemo(
-    () => [
+  const navLinks = useMemo(() => {
+    const links = [
       { label: 'Catalog', to: '/' },
-      { label: 'My Orders', to: '/orders', protected: true },
-    ],
-    []
+      { label: 'My Orders', to: '/orders', requiresAuth: true },
+    ];
+    if (user?.role === 'ADMIN') {
+      links.push({ label: 'Admin Console', to: '/admin/products', requiresRole: 'ADMIN' });
+    }
+    return links;
+  }, [user?.role]);
+
+  const canAccessLink = useCallback(
+    (link) => {
+      if (link.requiresRole) {
+        return user?.role === link.requiresRole;
+      }
+      if (link.requiresAuth) {
+        return Boolean(user);
+      }
+      return true;
+    },
+    [user]
   );
 
   const handleLogout = () => {
@@ -220,13 +236,11 @@ export const MainLayout = ({ children }) => {
             </BrandLink>
             {isDesktop ? (
               <Stack direction="row" spacing={2} alignItems="center">
-                {navLinks
-                  .filter((item) => !item.protected || user)
-                  .map((item) => (
-                    <NavButton key={item.to} component={Link} to={item.to} variant="text">
-                      {item.label}
-                    </NavButton>
-                  ))}
+                {navLinks.filter(canAccessLink).map((item) => (
+                  <NavButton key={item.to} component={Link} to={item.to} variant="text">
+                    {item.label}
+                  </NavButton>
+                ))}
                 <CartButton
                   component={Link}
                   to="/cart"
@@ -303,13 +317,11 @@ export const MainLayout = ({ children }) => {
                 secondary={cart.length ? `${cart.length} item${cart.length > 1 ? 's' : ''}` : 'Your bag is waiting'}
               />
             </DrawerListItem>
-            {navLinks
-              .filter((item) => !item.protected || user)
-              .map((item) => (
-                <DrawerListItem key={item.to} component={Link} to={item.to} onClick={handleToggleDrawer}>
-                  <ListItemText primary={item.label} />
-                </DrawerListItem>
-              ))}
+            {navLinks.filter(canAccessLink).map((item) => (
+              <DrawerListItem key={item.to} component={Link} to={item.to} onClick={handleToggleDrawer}>
+                <ListItemText primary={item.label} />
+              </DrawerListItem>
+            ))}
           </List>
           <DrawerDivider />
           {user ? (
