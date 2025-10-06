@@ -22,16 +22,29 @@ import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import LoginRoundedIcon from '@mui/icons-material/LoginRounded';
 import PersonAddAltRoundedIcon from '@mui/icons-material/PersonAddAltRounded';
 import { Link, useNavigate } from 'react-router-dom';
-import { styled } from '@mui/material/styles';
+import { alpha, styled } from '@mui/material/styles';
 import { useAuth } from '../features/auth/AuthContext.jsx';
 import { useCart } from '../features/cart/CartContext.jsx';
 
 const Root = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
-  background: 'linear-gradient(180deg, #eef2ff 0%, #f4f6fb 40%, #ffffff 100%)',
+  background: 'linear-gradient(180deg, #e0f2fe 0%, #e4ecff 42%, #f8fafc 100%)',
   color: theme.palette.text.primary,
   display: 'flex',
   flexDirection: 'column',
+}));
+
+const HeaderBar = styled(AppBar)(({ theme }) => ({
+  background: 'linear-gradient(120deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 58, 138, 0.88) 45%, rgba(14, 116, 144, 0.85) 100%)',
+  color: theme.palette.common.white,
+  backdropFilter: 'blur(18px)',
+  borderBottom: `1px solid ${alpha(theme.palette.common.white, 0.12)}`,
+  boxShadow: '0 24px 48px rgba(15, 23, 42, 0.35)',
+  borderRadius: 0,
+}));
+
+const HeaderToolbar = styled(Toolbar)(() => ({
+  minHeight: 88,
 }));
 
 const Brand = styled(Typography)(() => ({
@@ -49,6 +62,113 @@ const NavContainer = styled(Container)(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'space-between',
   gap: theme.spacing(2),
+  padding: theme.spacing(2.5, 3),
+}));
+
+const BrandLink = styled(Stack)(() => ({
+  textDecoration: 'none',
+}));
+
+const Tagline = styled(Typography)(() => ({
+  fontSize: '0.65rem',
+  letterSpacing: '0.48em',
+  color: 'rgba(255, 255, 255, 0.72)',
+  fontWeight: 600,
+}));
+
+const NavButton = styled(Button)(({ theme }) => ({
+  textTransform: 'none',
+  fontWeight: 500,
+  color: alpha(theme.palette.common.white, 0.88),
+  borderRadius: 999,
+  paddingInline: theme.spacing(2.5),
+  transition: 'all 0.2s ease-in-out',
+  '&:hover': {
+    color: theme.palette.common.white,
+    backgroundColor: alpha(theme.palette.common.white, 0.12),
+  },
+}));
+
+const PrimaryButton = styled(Button)(({ theme }) => ({
+  textTransform: 'none',
+  fontWeight: 600,
+  borderRadius: 999,
+  paddingInline: theme.spacing(2.8),
+  background: 'linear-gradient(135deg, #38bdf8 0%, #6366f1 48%, #c084fc 100%)',
+  boxShadow: '0 20px 35px rgba(99, 102, 241, 0.35)',
+  color: theme.palette.common.white,
+  '&:hover': {
+    background: 'linear-gradient(135deg, #0ea5e9 0%, #4f46e5 48%, #a855f7 100%)',
+    boxShadow: '0 18px 32px rgba(79, 70, 229, 0.45)',
+  },
+}));
+
+const SecondaryButton = styled(Button)(({ theme }) => ({
+  textTransform: 'none',
+  fontWeight: 600,
+  borderRadius: 999,
+  paddingInline: theme.spacing(2.8),
+  borderColor: alpha(theme.palette.common.white, 0.5),
+  color: theme.palette.common.white,
+  '&:hover': {
+    borderColor: theme.palette.common.white,
+    backgroundColor: alpha(theme.palette.common.white, 0.12),
+  },
+}));
+
+const CartButton = styled(NavButton)(({ theme }) => ({
+  backgroundColor: alpha(theme.palette.common.white, 0.1),
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.common.white, 0.18),
+  },
+}));
+
+const MenuToggle = styled(IconButton)(({ theme }) => ({
+  color: theme.palette.common.white,
+  backgroundColor: alpha(theme.palette.common.white, 0.08),
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.common.white, 0.16),
+  },
+}));
+
+const StyledDrawer = styled(Drawer)(({ theme }) => ({
+  '& .MuiDrawer-paper': {
+    width: '80vw',
+    maxWidth: 320,
+    background: 'linear-gradient(160deg, rgba(15, 23, 42, 0.96) 0%, rgba(30, 64, 175, 0.9) 70%, rgba(56, 189, 248, 0.85) 100%)',
+    color: theme.palette.common.white,
+    borderLeft: `1px solid ${alpha(theme.palette.common.white, 0.08)}`,
+    backdropFilter: 'blur(18px)',
+    padding: theme.spacing(0, 3, 3),
+  },
+}));
+
+const DrawerContent = styled(Box)(({ theme }) => ({
+  paddingTop: theme.spacing(4),
+}));
+
+const DrawerDescription = styled(Typography)(() => ({
+  color: 'rgba(226, 232, 240, 0.72)',
+}));
+
+const DrawerDivider = styled(Divider)(({ theme }) => ({
+  borderColor: alpha(theme.palette.common.white, 0.16),
+  marginBlock: theme.spacing(2),
+}));
+
+const DrawerListItem = styled(ListItemButton)(({ theme }) => ({
+  borderRadius: theme.spacing(2),
+  color: theme.palette.common.white,
+  marginBottom: theme.spacing(0.5),
+  '& .MuiListItemText-primary': {
+    fontWeight: 500,
+  },
+  '& .MuiListItemText-secondary': {
+    color: 'rgba(226, 232, 240, 0.68)',
+  },
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.common.white, 0.12),
+  },
 }));
 
 const MainContent = styled(Container)(({ theme }) => ({
@@ -91,59 +211,56 @@ export const MainLayout = ({ children }) => {
 
   return (
     <Root>
-      <AppBar position="sticky">
-        <Toolbar disableGutters>
+      <HeaderBar position="sticky">
+        <HeaderToolbar disableGutters>
           <NavContainer>
-            <Stack direction="row" alignItems="center" spacing={1.5} component={Link} to="/" sx={{ textDecoration: 'none' }}>
+            <BrandLink direction="row" alignItems="center" spacing={1.5} component={Link} to="/">
               <Brand variant="h6">Hemar</Brand>
-              <Typography variant="subtitle2" sx={{ color: 'rgba(255,255,255,0.85)', letterSpacing: '0.28em' }}>
-                MOBILE
-              </Typography>
-            </Stack>
+              <Tagline variant="overline">MOBILE</Tagline>
+            </BrandLink>
             {isDesktop ? (
               <Stack direction="row" spacing={2} alignItems="center">
                 {navLinks
                   .filter((item) => !item.protected || user)
                   .map((item) => (
-                    <Button key={item.to} component={Link} to={item.to} color="inherit" variant="text">
+                    <NavButton key={item.to} component={Link} to={item.to} variant="text">
                       {item.label}
-                    </Button>
+                    </NavButton>
                   ))}
-                <Button
+                <CartButton
                   component={Link}
                   to="/cart"
-                  color="inherit"
                   startIcon={
-                    <Badge color="secondary" badgeContent={cart.length} overlap="circular" max={99}>
+                    <Badge color="primary" badgeContent={cart.length} overlap="circular" max={99}>
                       <ShoppingBagOutlinedIcon />
                     </Badge>
                   }
                 >
                   Cart
-                </Button>
+                </CartButton>
                 {user ? (
-                  <Button color="inherit" onClick={handleLogout} startIcon={<LogoutRoundedIcon />}>
+                  <NavButton onClick={handleLogout} startIcon={<LogoutRoundedIcon />}>
                     Logout
-                  </Button>
+                  </NavButton>
                 ) : (
                   <Stack direction="row" spacing={1}>
-                    <Button component={Link} to="/login" color="inherit" startIcon={<LoginRoundedIcon />}> 
+                    <NavButton component={Link} to="/login" startIcon={<LoginRoundedIcon />}>
                       Login
-                    </Button>
-                    <Button component={Link} to="/register" color="secondary" variant="contained" startIcon={<PersonAddAltRoundedIcon />}>
+                    </NavButton>
+                    <PrimaryButton component={Link} to="/register" startIcon={<PersonAddAltRoundedIcon />}>
                       Join us
-                    </Button>
+                    </PrimaryButton>
                   </Stack>
                 )}
               </Stack>
             ) : (
-              <IconButton color="inherit" onClick={handleToggleDrawer}>
+              <MenuToggle onClick={handleToggleDrawer}>
                 <MenuRoundedIcon />
-              </IconButton>
+              </MenuToggle>
             )}
           </NavContainer>
-        </Toolbar>
-      </AppBar>
+        </HeaderToolbar>
+      </HeaderBar>
       <MainContent component="main">{children}</MainContent>
       <Footer>
         <Container>
@@ -168,49 +285,70 @@ export const MainLayout = ({ children }) => {
         </Container>
       </Footer>
 
-      <Drawer anchor="right" open={mobileOpen} onClose={handleToggleDrawer} PaperProps={{ sx: { width: '80vw', maxWidth: 320 } }}>
-        <Box sx={{ px: 3, py: 4 }}>
+      <StyledDrawer anchor="right" open={mobileOpen} onClose={handleToggleDrawer}>
+        <DrawerContent>
           <Stack spacing={1} mb={2}>
-            <Brand variant="h6" component={Link} to="/" onClick={handleToggleDrawer} sx={{ textDecoration: 'none' }}>
-              Hemar
-            </Brand>
-            <Typography variant="body2" color="text.secondary">
+            <BrandLink component={Link} to="/" onClick={handleToggleDrawer}>
+              <Brand variant="h6">Hemar</Brand>
+            </BrandLink>
+            <DrawerDescription variant="body2">
               Effortless shopping, curated phones.
-            </Typography>
+            </DrawerDescription>
           </Stack>
-          <Divider />
+          <DrawerDivider />
           <List>
-            <ListItemButton component={Link} to="/cart" onClick={handleToggleDrawer}>
+            <DrawerListItem component={Link} to="/cart" onClick={handleToggleDrawer}>
               <ListItemText
                 primary="Cart"
                 secondary={cart.length ? `${cart.length} item${cart.length > 1 ? 's' : ''}` : 'Your bag is waiting'}
               />
-            </ListItemButton>
+            </DrawerListItem>
             {navLinks
               .filter((item) => !item.protected || user)
               .map((item) => (
-                <ListItemButton key={item.to} component={Link} to={item.to} onClick={handleToggleDrawer}>
+                <DrawerListItem key={item.to} component={Link} to={item.to} onClick={handleToggleDrawer}>
                   <ListItemText primary={item.label} />
-                </ListItemButton>
+                </DrawerListItem>
               ))}
           </List>
-          <Divider sx={{ my: 2 }} />
+          <DrawerDivider />
           {user ? (
-            <Button fullWidth variant="contained" color="primary" onClick={() => { handleLogout(); handleToggleDrawer(); }} startIcon={<LogoutRoundedIcon />}>
+            <SecondaryButton
+              fullWidth
+              variant="outlined"
+              onClick={() => {
+                handleLogout();
+                handleToggleDrawer();
+              }}
+              startIcon={<LogoutRoundedIcon />}
+            >
               Logout
-            </Button>
+            </SecondaryButton>
           ) : (
             <Stack spacing={1.5}>
-              <Button fullWidth variant="contained" color="primary" component={Link} to="/login" onClick={handleToggleDrawer} startIcon={<LoginRoundedIcon />}>
+              <PrimaryButton
+                fullWidth
+                component={Link}
+                to="/login"
+                onClick={handleToggleDrawer}
+                startIcon={<LoginRoundedIcon />}
+              >
                 Login
-              </Button>
-              <Button fullWidth variant="outlined" color="secondary" component={Link} to="/register" onClick={handleToggleDrawer} startIcon={<PersonAddAltRoundedIcon />}>
+              </PrimaryButton>
+              <SecondaryButton
+                fullWidth
+                variant="outlined"
+                component={Link}
+                to="/register"
+                onClick={handleToggleDrawer}
+                startIcon={<PersonAddAltRoundedIcon />}
+              >
                 Create account
-              </Button>
+              </SecondaryButton>
             </Stack>
           )}
-        </Box>
-      </Drawer>
+        </DrawerContent>
+      </StyledDrawer>
     </Root>
   );
 };
