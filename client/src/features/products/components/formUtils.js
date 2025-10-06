@@ -4,6 +4,7 @@
  *   description: string;
  *   price: string;
  *   imageUrl: string;
+ *   imageFile: File | null;
  *   brand: string;
  *   stock: string;
  * }}
@@ -13,6 +14,7 @@ export const createEmptyProductForm = () => ({
   description: '',
   price: '',
   imageUrl: '',
+  imageFile: null,
   brand: '',
   stock: '',
 });
@@ -26,6 +28,7 @@ export const mapProductToFormValues = (product) => ({
   description: product?.description ?? '',
   price: product?.price != null ? String(product.price) : '',
   imageUrl: product?.imageUrl ?? '',
+  imageFile: null,
   brand: product?.brand ?? '',
   stock: product?.stock != null ? String(product.stock) : '',
 });
@@ -37,6 +40,7 @@ export const mapProductToFormValues = (product) => ({
  *   description: string;
  *   price: string;
  *   imageUrl: string;
+ *   imageFile: File | null;
  *   brand: string;
  *   stock: string;
  * }} form
@@ -48,11 +52,14 @@ export const buildProductPayload = (form) => {
     return null;
   }
   return {
-    name: form.name.trim(),
-    description: form.description.trim(),
+    body: {
+      name: form.name.trim(),
+      description: form.description.trim(),
+      brand: form.brand.trim(),
+      price,
+      stock,
+    },
+    imageFile: form.imageFile,
     imageUrl: form.imageUrl.trim(),
-    brand: form.brand.trim(),
-    price,
-    stock,
   };
 };

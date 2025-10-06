@@ -14,6 +14,14 @@ export const env = {
   mongoUrl: process.env.MONGO_URL,
   adminEmail: process.env.ADMIN_EMAIL,
   adminPassword: process.env.ADMIN_PASSWORD,
+  storage: {
+    endpoint: process.env.MINIO_ENDPOINT,
+    region: process.env.MINIO_REGION || 'us-east-1',
+    accessKey: process.env.MINIO_ACCESS_KEY,
+    secretKey: process.env.MINIO_SECRET_KEY,
+    bucket: process.env.MINIO_BUCKET,
+    publicUrl: process.env.MINIO_PUBLIC_URL || process.env.MINIO_ENDPOINT,
+  },
 };
 
 if (!env.databaseUrl) {
@@ -26,4 +34,21 @@ if (!env.jwtSecret) {
 
 if (!env.mongoUrl) {
   throw new Error('MONGO_URL must be defined');
+}
+
+const requiredStorageValues = [
+  { value: env.storage.endpoint, name: 'MINIO_ENDPOINT' },
+  { value: env.storage.accessKey, name: 'MINIO_ACCESS_KEY' },
+  { value: env.storage.secretKey, name: 'MINIO_SECRET_KEY' },
+  { value: env.storage.bucket, name: 'MINIO_BUCKET' },
+];
+
+for (const item of requiredStorageValues) {
+  if (!item.value) {
+    throw new Error(`${item.name} must be defined`);
+  }
+}
+
+if (!env.storage.publicUrl) {
+  throw new Error('MINIO_PUBLIC_URL must be defined');
 }

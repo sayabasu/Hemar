@@ -8,3 +8,10 @@
  * @property {number} stock
  * @property {number} price
  */
+
+/**
+ * @typedef {Object} ProductImageUploadResponse
+ * @property {string} uploadUrl
+ * @property {string} fileUrl
+ * @property {number} expiresIn
+ */

@@ -23,6 +23,7 @@ import { api } from '../../lib/api.js';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import { AdminProductForm } from './components/AdminProductForm.jsx';
 import { AdminProductEditDialog } from './components/AdminProductEditDialog.jsx';
+import { uploadProductImage } from './lib/uploadProductImage.js';
 
 const formatCurrency = (value) => {
   const amount = Number.isFinite(value) ? value : 0;
@@ -60,17 +61,25 @@ const AdminProductsPage = () => {
   }, [loadProducts]);
 
   const handleCreate = useCallback(
-    async (payload) => {
-      setIsSubmitting(true);
+    async (submission) => {
       setSubmitError(null);
       setSubmitSuccess(null);
+
+      if (!submission?.imageFile) {
+        setSubmitError('Please choose a product image before saving.');
+        return false;
+      }
+
+      setIsSubmitting(true);
       try {
-        await api.post('/products', payload);
+        const { fileUrl } = await uploadProductImage(submission.imageFile);
+        await api.post('/products', { ...submission.body, imageUrl: fileUrl });
         setSubmitSuccess('Product added successfully.');
         await loadProducts();
         return true;
       } catch (error) {
-        const message = error?.response?.data?.message || 'Unable to create product. Check the fields and try again.';
+        const message =
+          error?.response?.data?.message || error?.message || 'Unable to create product. Check the fields and try again.';
         setSubmitError(message);
         return false;
       } finally {
@@ -81,17 +90,29 @@ const AdminProductsPage = () => {
   );
 
   const handleUpdate = useCallback(
-    async (id, payload) => {
-      setIsSubmitting(true);
+    async (id, submission) => {
       setSubmitError(null);
       setSubmitSuccess(null);
+      setIsSubmitting(true);
       try {
-        await api.put(`/products/${id}`, payload);
+        let imageUrl = submission.imageUrl;
+        if (submission.imageFile) {
+          const { fileUrl } = await uploadProductImage(submission.imageFile);
+          imageUrl = fileUrl;
+        }
+
+        if (!imageUrl) {
+          setSubmitError('Product image is required.');
+          return false;
+        }
+
+        await api.put(`/products/${id}`, { ...submission.body, imageUrl });
         setSubmitSuccess('Product updated successfully.');
         await loadProducts();
         return true;
       } catch (error) {
-        const message = error?.response?.data?.message || 'Unable to update product. Check the fields and try again.';
+        const message =
+          error?.response?.data?.message || error?.message || 'Unable to update product. Check the fields and try again.';
         setSubmitError(message);
         return false;
       } finally {

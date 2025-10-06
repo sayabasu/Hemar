@@ -54,6 +54,7 @@ Each package exposes helpful scripts:
 - Customer registration and login with JWT-based authentication.
 - Admin-protected CRUD APIs for managing phone catalog entries.
 - React-based admin console for adding products and reviewing inventory.
+- MinIO-backed product image uploads using presigned URLs for secure media storage.
 - Shopping cart and checkout flow that creates orders and updates stock.
 - Order history for authenticated customers.
 - Mongo-backed activity log capturing catalog and order events.
