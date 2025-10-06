@@ -4,5 +4,4 @@ Provides CRUD APIs for managing mobile phone catalog entries and exposing them t
 The admin console uses the same endpoints to create new products and review inventory.
 
 ## Uploads
-- `POST /api/products/images/upload` issues presigned URLs backed by MinIO so the frontend can upload product photography securely
-  before creating or updating catalog entries.
+- `POST /api/products/images/upload` saves catalog photography to the shared `/images` volume before creating or updating entries.

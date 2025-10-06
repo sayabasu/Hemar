@@ -8,7 +8,7 @@
 ## Products
 - `GET /api/products` – List available phones (supports `search` query).
 - `GET /api/products/:id` – Retrieve a single phone.
-- `POST /api/products/images/upload` – Request a presigned URL for product image uploads (admin only).
+- `POST /api/products/images/upload` – Upload a product image to the shared `/images` storage (admin only).
 - `POST /api/products` – Create a phone (admin only).
 - `PUT /api/products/:id` – Update a phone (admin only).
 - `DELETE /api/products/:id` – Remove a phone (admin only).

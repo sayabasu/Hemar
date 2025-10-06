@@ -40,6 +40,8 @@ app.use(express.json());
 app.use(cors({ origin: env.corsOrigins }));
 app.use(requestLogger);
 
+app.use(env.storage.publicPath, express.static(env.storage.imagesDir));
+
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/api/auth', authRoutes);
