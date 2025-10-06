@@ -17,7 +17,7 @@
 | Column | Type | Notes |
 | --- | --- | --- |
 | id | Int | Primary key |
-| name | String |  |
+| name | String | Unique |
 | description | String |  |
 | price | Decimal(10,2) |  |
 | imageUrl | String |  |
